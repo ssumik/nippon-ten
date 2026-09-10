@@ -2,6 +2,7 @@ package dev.nipponten.resource;
 
 import dev.nipponten.application.requests.PromotionRequest;
 import dev.nipponten.application.responses.PromotionResponse;
+import dev.nipponten.application.responses.PromotionResponseMapper;
 import dev.nipponten.application.services.PromotionService;
 import dev.nipponten.domain.models.Promotion;
 import jakarta.inject.Inject;
@@ -24,6 +25,8 @@ public class PromotionResource {
 
     @Inject PromotionService service;
 
+    @Inject PromotionResponseMapper mapper;
+
     @POST
     public Response create(PromotionRequest request) {
         Promotion saved =
@@ -40,18 +43,18 @@ public class PromotionResource {
                                 request.startDate(),
                                 request.endDate(),
                                 request.enablePromotionPoints()));
-        return Response.status(Response.Status.CREATED).entity(toResponse(saved)).build();
+        return Response.status(Response.Status.CREATED).entity(mapper.toResponse(saved)).build();
     }
 
     @GET
     @Path("/{id}")
     public PromotionResponse getById(@PathParam("id") Long id) {
-        return toResponse(service.getById(id));
+        return mapper.toResponse(service.getById(id));
     }
 
     @GET
     public List<PromotionResponse> getAll() {
-        return service.getAll().stream().map(this::toResponse).toList();
+        return service.getAll().stream().map(mapper::toResponse).toList();
     }
 
     @PUT
@@ -72,7 +75,7 @@ public class PromotionResource {
                                 request.startDate(),
                                 request.endDate(),
                                 request.enablePromotionPoints()));
-        return toResponse(updated);
+        return mapper.toResponse(updated);
     }
 
     @DELETE
@@ -80,20 +83,5 @@ public class PromotionResource {
     public Response delete(@PathParam("id") Long id) {
         service.delete(id);
         return Response.noContent().build();
-    }
-
-    private PromotionResponse toResponse(Promotion promotion) {
-        return new PromotionResponse(
-                promotion.id(),
-                promotion.title(),
-                promotion.price(),
-                promotion.imageUrl(),
-                promotion.description(),
-                promotion.status(),
-                promotion.promotionTypeId(),
-                promotion.productId(),
-                promotion.startDate(),
-                promotion.endDate(),
-                promotion.enablePromotionPoints());
     }
 }

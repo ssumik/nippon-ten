@@ -2,6 +2,7 @@ package dev.nipponten.resource;
 
 import dev.nipponten.application.requests.PromotionTypeRequest;
 import dev.nipponten.application.responses.PromotionTypeResponse;
+import dev.nipponten.application.responses.PromotionTypeResponseMapper;
 import dev.nipponten.application.services.PromotionTypeService;
 import dev.nipponten.domain.models.PromotionType;
 import jakarta.inject.Inject;
@@ -24,6 +25,8 @@ public class PromotionTypeResource {
 
     @Inject PromotionTypeService service;
 
+    @Inject PromotionTypeResponseMapper mapper;
+
     @POST
     public Response create(PromotionTypeRequest request) {
         PromotionType saved =
@@ -34,18 +37,18 @@ public class PromotionTypeResource {
                                 request.description(),
                                 request.type(),
                                 request.value()));
-        return Response.status(Response.Status.CREATED).entity(toResponse(saved)).build();
+        return Response.status(Response.Status.CREATED).entity(mapper.toResponse(saved)).build();
     }
 
     @GET
     @Path("/{id}")
     public PromotionTypeResponse getById(@PathParam("id") Long id) {
-        return toResponse(service.getById(id));
+        return mapper.toResponse(service.getById(id));
     }
 
     @GET
     public List<PromotionTypeResponse> getAll() {
-        return service.getAll().stream().map(this::toResponse).toList();
+        return service.getAll().stream().map(mapper::toResponse).toList();
     }
 
     @PUT
@@ -60,7 +63,7 @@ public class PromotionTypeResource {
                                 request.description(),
                                 request.type(),
                                 request.value()));
-        return toResponse(updated);
+        return mapper.toResponse(updated);
     }
 
     @DELETE
@@ -68,14 +71,5 @@ public class PromotionTypeResource {
     public Response delete(@PathParam("id") Long id) {
         service.delete(id);
         return Response.noContent().build();
-    }
-
-    private PromotionTypeResponse toResponse(PromotionType promotionType) {
-        return new PromotionTypeResponse(
-                promotionType.id(),
-                promotionType.name(),
-                promotionType.description(),
-                promotionType.type(),
-                promotionType.value());
     }
 }

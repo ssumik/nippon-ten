@@ -2,6 +2,7 @@ package dev.nipponten.resource;
 
 import dev.nipponten.application.requests.ComboProductRequest;
 import dev.nipponten.application.responses.ComboProductResponse;
+import dev.nipponten.application.responses.ComboProductResponseMapper;
 import dev.nipponten.application.services.ComboProductService;
 import dev.nipponten.domain.models.ComboProduct;
 import jakarta.inject.Inject;
@@ -24,22 +25,24 @@ public class ComboProductResource {
 
     @Inject ComboProductService service;
 
+    @Inject ComboProductResponseMapper mapper;
+
     @POST
     public Response create(ComboProductRequest request) {
         ComboProduct saved =
                 service.create(new ComboProduct(null, request.comboId(), request.productId()));
-        return Response.status(Response.Status.CREATED).entity(toResponse(saved)).build();
+        return Response.status(Response.Status.CREATED).entity(mapper.toResponse(saved)).build();
     }
 
     @GET
     @Path("/{id}")
     public ComboProductResponse getById(@PathParam("id") Long id) {
-        return toResponse(service.getById(id));
+        return mapper.toResponse(service.getById(id));
     }
 
     @GET
     public List<ComboProductResponse> getAll() {
-        return service.getAll().stream().map(this::toResponse).toList();
+        return service.getAll().stream().map(mapper::toResponse).toList();
     }
 
     @PUT
@@ -47,7 +50,7 @@ public class ComboProductResource {
     public ComboProductResponse update(@PathParam("id") Long id, ComboProductRequest request) {
         ComboProduct updated =
                 service.update(id, new ComboProduct(id, request.comboId(), request.productId()));
-        return toResponse(updated);
+        return mapper.toResponse(updated);
     }
 
     @DELETE
@@ -55,10 +58,5 @@ public class ComboProductResource {
     public Response delete(@PathParam("id") Long id) {
         service.delete(id);
         return Response.noContent().build();
-    }
-
-    private ComboProductResponse toResponse(ComboProduct comboProduct) {
-        return new ComboProductResponse(
-                comboProduct.id(), comboProduct.comboId(), comboProduct.productId());
     }
 }

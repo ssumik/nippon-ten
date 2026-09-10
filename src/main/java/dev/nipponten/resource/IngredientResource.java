@@ -2,6 +2,7 @@ package dev.nipponten.resource;
 
 import dev.nipponten.application.requests.IngredientRequest;
 import dev.nipponten.application.responses.IngredientResponse;
+import dev.nipponten.application.responses.IngredientResponseMapper;
 import dev.nipponten.application.services.IngredientService;
 import dev.nipponten.domain.models.Ingredient;
 import jakarta.inject.Inject;
@@ -24,6 +25,8 @@ public class IngredientResource {
 
     @Inject IngredientService service;
 
+    @Inject IngredientResponseMapper mapper;
+
     @POST
     public Response create(IngredientRequest request) {
         Ingredient saved =
@@ -35,18 +38,18 @@ public class IngredientResource {
                                 request.imageUrl(),
                                 request.price(),
                                 request.status()));
-        return Response.status(Response.Status.CREATED).entity(toResponse(saved)).build();
+        return Response.status(Response.Status.CREATED).entity(mapper.toResponse(saved)).build();
     }
 
     @GET
     @Path("/{id}")
     public IngredientResponse getById(@PathParam("id") Long id) {
-        return toResponse(service.getById(id));
+        return mapper.toResponse(service.getById(id));
     }
 
     @GET
     public List<IngredientResponse> getAll() {
-        return service.getAll().stream().map(this::toResponse).toList();
+        return service.getAll().stream().map(mapper::toResponse).toList();
     }
 
     @PUT
@@ -62,7 +65,7 @@ public class IngredientResource {
                                 request.imageUrl(),
                                 request.price(),
                                 request.status()));
-        return toResponse(updated);
+        return mapper.toResponse(updated);
     }
 
     @DELETE
@@ -70,15 +73,5 @@ public class IngredientResource {
     public Response delete(@PathParam("id") Long id) {
         service.delete(id);
         return Response.noContent().build();
-    }
-
-    private IngredientResponse toResponse(Ingredient ingredient) {
-        return new IngredientResponse(
-                ingredient.id(),
-                ingredient.name(),
-                ingredient.description(),
-                ingredient.imageUrl(),
-                ingredient.price(),
-                ingredient.status());
     }
 }

@@ -1,9 +1,14 @@
 package dev.nipponten.resource;
 
+import dev.nipponten.application.requests.ClientRequest;
+import dev.nipponten.application.requests.UserAddressRequest;
+import dev.nipponten.application.requests.UserRegistrationRequest;
 import dev.nipponten.application.requests.UserRequest;
+import dev.nipponten.application.responses.ClientResponse;
+import dev.nipponten.application.responses.UserAddressResponse;
+import dev.nipponten.application.responses.UserDetailResponse;
 import dev.nipponten.application.responses.UserResponse;
 import dev.nipponten.application.services.UserService;
-import dev.nipponten.domain.models.User;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -25,31 +30,25 @@ public class UserResource {
     @Inject UserService service;
 
     @POST
-    public Response create(UserRequest request) {
-        User saved =
-                service.create(
-                        new User(null, request.email(), request.password(), request.createdAt()));
-        return Response.status(Response.Status.CREATED).entity(toResponse(saved)).build();
+    public Response create(UserRegistrationRequest request) {
+        return Response.status(Response.Status.CREATED).entity(service.register(request)).build();
     }
 
     @GET
     @Path("/{id}")
-    public UserResponse getById(@PathParam("id") Long id) {
-        return toResponse(service.getById(id));
+    public UserDetailResponse getById(@PathParam("id") Long id) {
+        return service.getProfile(id);
     }
 
     @GET
     public List<UserResponse> getAll() {
-        return service.getAll().stream().map(this::toResponse).toList();
+        return service.getAll();
     }
 
     @PUT
     @Path("/{id}")
     public UserResponse update(@PathParam("id") Long id, UserRequest request) {
-        User updated =
-                service.update(
-                        id, new User(id, request.email(), request.password(), request.createdAt()));
-        return toResponse(updated);
+        return service.update(id, request);
     }
 
     @DELETE
@@ -59,7 +58,46 @@ public class UserResource {
         return Response.noContent().build();
     }
 
-    private UserResponse toResponse(User user) {
-        return new UserResponse(user.id(), user.email(), user.password(), user.createdAt());
+    @GET
+    @Path("/{userId}/client")
+    public ClientResponse getClient(@PathParam("userId") Long userId) {
+        return service.getClient(userId);
+    }
+
+    @PUT
+    @Path("/{userId}/client")
+    public ClientResponse updateClient(@PathParam("userId") Long userId, ClientRequest request) {
+        return service.updateClient(userId, request);
+    }
+
+    @GET
+    @Path("/{userId}/addresses")
+    public List<UserAddressResponse> getAddresses(@PathParam("userId") Long userId) {
+        return service.getAddresses(userId);
+    }
+
+    @POST
+    @Path("/{userId}/addresses")
+    public Response addAddress(@PathParam("userId") Long userId, UserAddressRequest request) {
+        return Response.status(Response.Status.CREATED)
+                .entity(service.addAddress(userId, request))
+                .build();
+    }
+
+    @PUT
+    @Path("/{userId}/addresses/{addressId}")
+    public UserAddressResponse updateAddress(
+            @PathParam("userId") Long userId,
+            @PathParam("addressId") Long addressId,
+            UserAddressRequest request) {
+        return service.updateAddress(userId, addressId, request);
+    }
+
+    @DELETE
+    @Path("/{userId}/addresses/{addressId}")
+    public Response removeAddress(
+            @PathParam("userId") Long userId, @PathParam("addressId") Long addressId) {
+        service.removeAddress(userId, addressId);
+        return Response.noContent().build();
     }
 }

@@ -8,10 +8,14 @@ import dev.nipponten.application.requests.ProductIngredientRequest;
 import dev.nipponten.application.requests.ProductRequest;
 import dev.nipponten.application.requests.ProductSizeRequest;
 import dev.nipponten.application.responses.AdditionalIngredientResponse;
+import dev.nipponten.application.responses.AdditionalIngredientResponseMapper;
 import dev.nipponten.application.responses.ProductDetailResponse;
 import dev.nipponten.application.responses.ProductIngredientResponse;
+import dev.nipponten.application.responses.ProductIngredientResponseMapper;
 import dev.nipponten.application.responses.ProductResponse;
+import dev.nipponten.application.responses.ProductResponseMapper;
 import dev.nipponten.application.responses.ProductSizeResponse;
+import dev.nipponten.application.responses.ProductSizeResponseMapper;
 import dev.nipponten.application.services.AdditionalIngredientService;
 import dev.nipponten.application.services.ProductIngredientService;
 import dev.nipponten.application.services.ProductService;
@@ -46,6 +50,14 @@ public class ProductResource {
 
     @Inject AdditionalIngredientService additionalIngredientService;
 
+    @Inject ProductResponseMapper productMapper;
+
+    @Inject ProductIngredientResponseMapper productIngredientMapper;
+
+    @Inject ProductSizeResponseMapper productSizeMapper;
+
+    @Inject AdditionalIngredientResponseMapper additionalIngredientMapper;
+
     @POST
     public Response create(ProductRequest request) {
         Product saved =
@@ -56,29 +68,24 @@ public class ProductResource {
                                 request.imageUrl(),
                                 request.description(),
                                 request.status()));
-        return Response.status(Response.Status.CREATED).entity(toResponse(saved)).build();
+        return Response.status(Response.Status.CREATED)
+                .entity(productMapper.toResponse(saved))
+                .build();
     }
 
     @GET
     @Path("/{id}")
     public ProductDetailResponse getById(@PathParam("id") Long id) {
-        Product product = service.getById(id);
-        return new ProductDetailResponse(
-                product.id(),
-                product.name(),
-                product.imageUrl(),
-                product.description(),
-                product.status(),
-                productIngredientService.getByProduct(id).stream().map(this::toResponse).toList(),
-                productSizeService.getByProduct(id).stream().map(this::toResponse).toList(),
-                additionalIngredientService.getByProduct(id).stream()
-                        .map(this::toResponse)
-                        .toList());
+        return productMapper.toDetailResponse(
+                service.getById(id),
+                productIngredientService.getByProduct(id),
+                productSizeService.getByProduct(id),
+                additionalIngredientService.getByProduct(id));
     }
 
     @GET
     public List<ProductResponse> getAll() {
-        return service.getAll().stream().map(this::toResponse).toList();
+        return service.getAll().stream().map(productMapper::toResponse).toList();
     }
 
     @PUT
@@ -93,7 +100,7 @@ public class ProductResource {
                                 request.imageUrl(),
                                 request.description(),
                                 request.status()));
-        return toResponse(updated);
+        return productMapper.toResponse(updated);
     }
 
     @DELETE
@@ -108,7 +115,7 @@ public class ProductResource {
     public List<ProductIngredientResponse> getIngredients(@PathParam("productId") Long productId) {
         service.getById(productId);
         return productIngredientService.getByProduct(productId).stream()
-                .map(this::toResponse)
+                .map(productIngredientMapper::toResponse)
                 .toList();
     }
 
@@ -120,7 +127,9 @@ public class ProductResource {
         ProductIngredient saved =
                 productIngredientService.create(
                         new ProductIngredient(null, productId, request.ingredientId()));
-        return Response.status(Response.Status.CREATED).entity(toResponse(saved)).build();
+        return Response.status(Response.Status.CREATED)
+                .entity(productIngredientMapper.toResponse(saved))
+                .build();
     }
 
     @DELETE
@@ -137,7 +146,9 @@ public class ProductResource {
     @Path("/{productId}/sizes")
     public List<ProductSizeResponse> getSizes(@PathParam("productId") Long productId) {
         service.getById(productId);
-        return productSizeService.getByProduct(productId).stream().map(this::toResponse).toList();
+        return productSizeService.getByProduct(productId).stream()
+                .map(productSizeMapper::toResponse)
+                .toList();
     }
 
     @POST
@@ -147,7 +158,9 @@ public class ProductResource {
         ProductSize saved =
                 productSizeService.create(
                         new ProductSize(null, productId, request.price(), request.status()));
-        return Response.status(Response.Status.CREATED).entity(toResponse(saved)).build();
+        return Response.status(Response.Status.CREATED)
+                .entity(productSizeMapper.toResponse(saved))
+                .build();
     }
 
     @PUT
@@ -161,7 +174,7 @@ public class ProductResource {
                 productSizeService.update(
                         sizeId,
                         new ProductSize(sizeId, productId, request.price(), request.status()));
-        return toResponse(updated);
+        return productSizeMapper.toResponse(updated);
     }
 
     @DELETE
@@ -179,7 +192,7 @@ public class ProductResource {
             @PathParam("productId") Long productId) {
         service.getById(productId);
         return additionalIngredientService.getByProduct(productId).stream()
-                .map(this::toResponse)
+                .map(additionalIngredientMapper::toResponse)
                 .toList();
     }
 
@@ -196,7 +209,9 @@ public class ProductResource {
                                 request.ingredientId(),
                                 request.maximumQuantity(),
                                 request.status()));
-        return Response.status(Response.Status.CREATED).entity(toResponse(saved)).build();
+        return Response.status(Response.Status.CREATED)
+                .entity(additionalIngredientMapper.toResponse(saved))
+                .build();
     }
 
     @PUT
@@ -215,7 +230,7 @@ public class ProductResource {
                                 request.ingredientId(),
                                 request.maximumQuantity(),
                                 request.status()));
-        return toResponse(updated);
+        return additionalIngredientMapper.toResponse(updated);
     }
 
     @DELETE
@@ -255,38 +270,5 @@ public class ProductResource {
             throw new AdditionalIngredientNotFoundException(additionalIngredientId);
         }
         return additionalIngredient;
-    }
-
-    private ProductResponse toResponse(Product product) {
-        return new ProductResponse(
-                product.id(),
-                product.name(),
-                product.imageUrl(),
-                product.description(),
-                product.status());
-    }
-
-    private ProductIngredientResponse toResponse(ProductIngredient productIngredient) {
-        return new ProductIngredientResponse(
-                productIngredient.id(),
-                productIngredient.productId(),
-                productIngredient.ingredientId());
-    }
-
-    private ProductSizeResponse toResponse(ProductSize productSize) {
-        return new ProductSizeResponse(
-                productSize.id(),
-                productSize.productId(),
-                productSize.price(),
-                productSize.status());
-    }
-
-    private AdditionalIngredientResponse toResponse(AdditionalIngredient additionalIngredient) {
-        return new AdditionalIngredientResponse(
-                additionalIngredient.id(),
-                additionalIngredient.productId(),
-                additionalIngredient.ingredientId(),
-                additionalIngredient.maximumQuantity(),
-                additionalIngredient.status());
     }
 }

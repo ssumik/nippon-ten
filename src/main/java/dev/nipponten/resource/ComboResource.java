@@ -2,6 +2,7 @@ package dev.nipponten.resource;
 
 import dev.nipponten.application.requests.ComboRequest;
 import dev.nipponten.application.responses.ComboResponse;
+import dev.nipponten.application.responses.ComboResponseMapper;
 import dev.nipponten.application.services.ComboService;
 import dev.nipponten.domain.models.Combo;
 import jakarta.inject.Inject;
@@ -24,6 +25,8 @@ public class ComboResource {
 
     @Inject ComboService service;
 
+    @Inject ComboResponseMapper mapper;
+
     @POST
     public Response create(ComboRequest request) {
         Combo saved =
@@ -35,18 +38,18 @@ public class ComboResource {
                                 request.imageUrl(),
                                 request.description(),
                                 request.status()));
-        return Response.status(Response.Status.CREATED).entity(toResponse(saved)).build();
+        return Response.status(Response.Status.CREATED).entity(mapper.toResponse(saved)).build();
     }
 
     @GET
     @Path("/{id}")
     public ComboResponse getById(@PathParam("id") Long id) {
-        return toResponse(service.getById(id));
+        return mapper.toResponse(service.getById(id));
     }
 
     @GET
     public List<ComboResponse> getAll() {
-        return service.getAll().stream().map(this::toResponse).toList();
+        return service.getAll().stream().map(mapper::toResponse).toList();
     }
 
     @PUT
@@ -62,7 +65,7 @@ public class ComboResource {
                                 request.imageUrl(),
                                 request.description(),
                                 request.status()));
-        return toResponse(updated);
+        return mapper.toResponse(updated);
     }
 
     @DELETE
@@ -70,15 +73,5 @@ public class ComboResource {
     public Response delete(@PathParam("id") Long id) {
         service.delete(id);
         return Response.noContent().build();
-    }
-
-    private ComboResponse toResponse(Combo combo) {
-        return new ComboResponse(
-                combo.id(),
-                combo.name(),
-                combo.price(),
-                combo.imageUrl(),
-                combo.description(),
-                combo.status());
     }
 }
