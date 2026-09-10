@@ -3,7 +3,11 @@
 
 # java files
 /target
-*.properties
+
+# dev/local property overrides (keep application.properties tracked)
+application-dev.properties
+application-local.properties
+*.local.properties
 
 .claude
 # Obsidian files
