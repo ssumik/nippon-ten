@@ -1,4 +1,4 @@
-package dev.nipponten.infrastructure.repositories;
+package dev.nipponten.domain.repositories;
 
 import dev.nipponten.domain.models.PromotionType;
 import java.util.List;

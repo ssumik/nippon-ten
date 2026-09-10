@@ -1,4 +1,4 @@
-package dev.nipponten.infrastructure.repositories;
+package dev.nipponten.domain.repositories;
 
 import dev.nipponten.domain.models.ComboProduct;
 import java.util.List;

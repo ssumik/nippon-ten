@@ -2,7 +2,7 @@ package dev.nipponten.application.services;
 
 import dev.nipponten.application.exceptions.ClientNotFoundException;
 import dev.nipponten.domain.models.Client;
-import dev.nipponten.infrastructure.repositories.ClientRepository;
+import dev.nipponten.domain.repositories.ClientRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;

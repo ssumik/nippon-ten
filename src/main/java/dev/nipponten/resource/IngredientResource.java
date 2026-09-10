@@ -1,11 +1,13 @@
 package dev.nipponten.resource;
 
 import dev.nipponten.application.requests.IngredientRequest;
+import dev.nipponten.application.requests.IngredientRequestMapper;
 import dev.nipponten.application.responses.IngredientResponse;
 import dev.nipponten.application.responses.IngredientResponseMapper;
 import dev.nipponten.application.services.IngredientService;
 import dev.nipponten.domain.models.Ingredient;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -27,17 +29,11 @@ public class IngredientResource {
 
     @Inject IngredientResponseMapper mapper;
 
+    @Inject IngredientRequestMapper requestMapper;
+
     @POST
-    public Response create(IngredientRequest request) {
-        Ingredient saved =
-                service.create(
-                        new Ingredient(
-                                null,
-                                request.name(),
-                                request.description(),
-                                request.imageUrl(),
-                                request.price(),
-                                request.status()));
+    public Response create(@Valid IngredientRequest request) {
+        Ingredient saved = service.create(requestMapper.toModel(null, request));
         return Response.status(Response.Status.CREATED).entity(mapper.toResponse(saved)).build();
     }
 
@@ -54,17 +50,8 @@ public class IngredientResource {
 
     @PUT
     @Path("/{id}")
-    public IngredientResponse update(@PathParam("id") Long id, IngredientRequest request) {
-        Ingredient updated =
-                service.update(
-                        id,
-                        new Ingredient(
-                                id,
-                                request.name(),
-                                request.description(),
-                                request.imageUrl(),
-                                request.price(),
-                                request.status()));
+    public IngredientResponse update(@PathParam("id") Long id, @Valid IngredientRequest request) {
+        Ingredient updated = service.update(id, requestMapper.toModel(id, request));
         return mapper.toResponse(updated);
     }
 

@@ -1,4 +1,9 @@
 package dev.nipponten.application.requests;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record UserAddressRequest(
-        String streetAddress, String number, String cep, String complement) {}
+        @NotBlank String streetAddress,
+        @NotBlank String number,
+        @NotBlank String cep,
+        String complement) {}

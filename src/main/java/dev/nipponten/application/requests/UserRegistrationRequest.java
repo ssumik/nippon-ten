@@ -1,3 +1,7 @@
 package dev.nipponten.application.requests;
 
-public record UserRegistrationRequest(UserRequest user, ClientRequest client) {}
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+
+public record UserRegistrationRequest(
+        @NotNull @Valid UserRequest user, @NotNull @Valid ClientRequest client) {}

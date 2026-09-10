@@ -1,6 +1,11 @@
 package dev.nipponten.application.requests;
 
 import dev.nipponten.domain.models.Product;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public record ProductRequest(
-        String name, String imageUrl, String description, Product.Status status) {}
+        @NotBlank String name,
+        String imageUrl,
+        String description,
+        @NotNull Product.Status status) {}

@@ -2,7 +2,7 @@ package dev.nipponten.application.services;
 
 import dev.nipponten.application.exceptions.IngredientNotFoundException;
 import dev.nipponten.domain.models.Ingredient;
-import dev.nipponten.infrastructure.repositories.IngredientRepository;
+import dev.nipponten.domain.repositories.IngredientRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;

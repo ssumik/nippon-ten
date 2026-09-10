@@ -2,7 +2,7 @@ package dev.nipponten.application.services;
 
 import dev.nipponten.application.exceptions.ComboNotFoundException;
 import dev.nipponten.domain.models.Combo;
-import dev.nipponten.infrastructure.repositories.ComboRepository;
+import dev.nipponten.domain.repositories.ComboRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;

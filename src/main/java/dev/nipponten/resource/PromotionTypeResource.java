@@ -1,11 +1,13 @@
 package dev.nipponten.resource;
 
 import dev.nipponten.application.requests.PromotionTypeRequest;
+import dev.nipponten.application.requests.PromotionTypeRequestMapper;
 import dev.nipponten.application.responses.PromotionTypeResponse;
 import dev.nipponten.application.responses.PromotionTypeResponseMapper;
 import dev.nipponten.application.services.PromotionTypeService;
 import dev.nipponten.domain.models.PromotionType;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -27,16 +29,11 @@ public class PromotionTypeResource {
 
     @Inject PromotionTypeResponseMapper mapper;
 
+    @Inject PromotionTypeRequestMapper requestMapper;
+
     @POST
-    public Response create(PromotionTypeRequest request) {
-        PromotionType saved =
-                service.create(
-                        new PromotionType(
-                                null,
-                                request.name(),
-                                request.description(),
-                                request.type(),
-                                request.value()));
+    public Response create(@Valid PromotionTypeRequest request) {
+        PromotionType saved = service.create(requestMapper.toModel(null, request));
         return Response.status(Response.Status.CREATED).entity(mapper.toResponse(saved)).build();
     }
 
@@ -53,16 +50,9 @@ public class PromotionTypeResource {
 
     @PUT
     @Path("/{id}")
-    public PromotionTypeResponse update(@PathParam("id") Long id, PromotionTypeRequest request) {
-        PromotionType updated =
-                service.update(
-                        id,
-                        new PromotionType(
-                                id,
-                                request.name(),
-                                request.description(),
-                                request.type(),
-                                request.value()));
+    public PromotionTypeResponse update(
+            @PathParam("id") Long id, @Valid PromotionTypeRequest request) {
+        PromotionType updated = service.update(id, requestMapper.toModel(id, request));
         return mapper.toResponse(updated);
     }
 

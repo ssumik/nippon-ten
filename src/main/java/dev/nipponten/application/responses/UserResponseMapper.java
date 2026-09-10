@@ -13,7 +13,7 @@ public class UserResponseMapper {
     @Inject UserAddressResponseMapper userAddressMapper;
 
     public UserResponse toResponse(User user) {
-        return new UserResponse(user.id(), user.email(), user.password(), user.createdAt());
+        return new UserResponse(user.id(), user.email(), user.createdAt());
     }
 
     public UserDetailResponse toDetailResponse(UserProfile profile) {
@@ -21,7 +21,6 @@ public class UserResponseMapper {
         return new UserDetailResponse(
                 user.id(),
                 user.email(),
-                user.password(),
                 user.createdAt(),
                 profile.client() == null ? null : clientMapper.toResponse(profile.client()),
                 profile.addresses().stream().map(userAddressMapper::toResponse).toList());

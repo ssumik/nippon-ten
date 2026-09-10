@@ -1,6 +1,7 @@
 package dev.nipponten.infrastructure.repositories;
 
 import dev.nipponten.domain.models.Internal;
+import dev.nipponten.domain.repositories.InternalRepository;
 import dev.nipponten.infrastructure.entities.InternalEntity;
 import dev.nipponten.infrastructure.mappers.InternalMapper;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;

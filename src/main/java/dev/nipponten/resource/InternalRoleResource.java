@@ -1,11 +1,13 @@
 package dev.nipponten.resource;
 
 import dev.nipponten.application.requests.InternalRoleRequest;
+import dev.nipponten.application.requests.InternalRoleRequestMapper;
 import dev.nipponten.application.responses.InternalRoleResponse;
 import dev.nipponten.application.responses.InternalRoleResponseMapper;
 import dev.nipponten.application.services.InternalRoleService;
 import dev.nipponten.domain.models.InternalRole;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -27,9 +29,11 @@ public class InternalRoleResource {
 
     @Inject InternalRoleResponseMapper mapper;
 
+    @Inject InternalRoleRequestMapper requestMapper;
+
     @POST
-    public Response create(InternalRoleRequest request) {
-        InternalRole saved = service.create(new InternalRole(null, request.name()));
+    public Response create(@Valid InternalRoleRequest request) {
+        InternalRole saved = service.create(requestMapper.toModel(null, request));
         return Response.status(Response.Status.CREATED).entity(mapper.toResponse(saved)).build();
     }
 
@@ -46,8 +50,9 @@ public class InternalRoleResource {
 
     @PUT
     @Path("/{id}")
-    public InternalRoleResponse update(@PathParam("id") Long id, InternalRoleRequest request) {
-        InternalRole updated = service.update(id, new InternalRole(id, request.name()));
+    public InternalRoleResponse update(
+            @PathParam("id") Long id, @Valid InternalRoleRequest request) {
+        InternalRole updated = service.update(id, requestMapper.toModel(id, request));
         return mapper.toResponse(updated);
     }
 

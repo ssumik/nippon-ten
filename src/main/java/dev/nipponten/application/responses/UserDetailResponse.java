@@ -6,7 +6,6 @@ import java.util.List;
 public record UserDetailResponse(
         Long id,
         String email,
-        String password,
         LocalDateTime createdAt,
         ClientResponse client,
         List<UserAddressResponse> addresses) {}

@@ -10,6 +10,7 @@ import dev.nipponten.application.responses.UserDetailResponse;
 import dev.nipponten.application.responses.UserResponse;
 import dev.nipponten.application.services.UserService;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -30,7 +31,7 @@ public class UserResource {
     @Inject UserService service;
 
     @POST
-    public Response create(UserRegistrationRequest request) {
+    public Response create(@Valid UserRegistrationRequest request) {
         return Response.status(Response.Status.CREATED).entity(service.register(request)).build();
     }
 
@@ -47,7 +48,7 @@ public class UserResource {
 
     @PUT
     @Path("/{id}")
-    public UserResponse update(@PathParam("id") Long id, UserRequest request) {
+    public UserResponse update(@PathParam("id") Long id, @Valid UserRequest request) {
         return service.update(id, request);
     }
 
@@ -66,7 +67,8 @@ public class UserResource {
 
     @PUT
     @Path("/{userId}/client")
-    public ClientResponse updateClient(@PathParam("userId") Long userId, ClientRequest request) {
+    public ClientResponse updateClient(
+            @PathParam("userId") Long userId, @Valid ClientRequest request) {
         return service.updateClient(userId, request);
     }
 
@@ -78,7 +80,8 @@ public class UserResource {
 
     @POST
     @Path("/{userId}/addresses")
-    public Response addAddress(@PathParam("userId") Long userId, UserAddressRequest request) {
+    public Response addAddress(
+            @PathParam("userId") Long userId, @Valid UserAddressRequest request) {
         return Response.status(Response.Status.CREATED)
                 .entity(service.addAddress(userId, request))
                 .build();
@@ -89,7 +92,7 @@ public class UserResource {
     public UserAddressResponse updateAddress(
             @PathParam("userId") Long userId,
             @PathParam("addressId") Long addressId,
-            UserAddressRequest request) {
+            @Valid UserAddressRequest request) {
         return service.updateAddress(userId, addressId, request);
     }
 

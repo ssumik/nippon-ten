@@ -1,6 +1,7 @@
 package dev.nipponten.infrastructure.repositories;
 
 import dev.nipponten.domain.models.Combo;
+import dev.nipponten.domain.repositories.ComboRepository;
 import dev.nipponten.infrastructure.entities.ComboEntity;
 import dev.nipponten.infrastructure.mappers.ComboMapper;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;

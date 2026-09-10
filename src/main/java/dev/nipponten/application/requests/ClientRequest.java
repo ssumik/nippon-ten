@@ -1,3 +1,6 @@
 package dev.nipponten.application.requests;
 
-public record ClientRequest(String name, String lastName, String cpf, Integer promotionPoints) {}
+import jakarta.validation.constraints.NotBlank;
+
+public record ClientRequest(
+        @NotBlank String name, @NotBlank String lastName, String cpf, Integer promotionPoints) {}

@@ -1,11 +1,14 @@
 package dev.nipponten.application.requests;
 
 import dev.nipponten.domain.models.Ingredient;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import java.math.BigDecimal;
 
 public record IngredientRequest(
-        String name,
+        @NotBlank String name,
         String description,
         String imageUrl,
-        BigDecimal price,
-        Ingredient.Status status) {}
+        @NotNull @PositiveOrZero BigDecimal price,
+        @NotNull Ingredient.Status status) {}
