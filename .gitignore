@@ -6,3 +6,5 @@
 *.properties
 
 .claude
+# Obsidian files
+.obsidian/
