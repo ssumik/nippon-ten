@@ -14,8 +14,11 @@ public class ComboProductService {
 
     @Inject ComboService comboService;
 
+    @Inject ProductService productService;
+
     public ComboProduct create(ComboProduct model) {
         comboService.getById(model.comboId());
+        productService.getById(model.productId());
         return repository.save(model);
     }
 
@@ -31,6 +34,7 @@ public class ComboProductService {
 
     public ComboProduct update(Long comboId, Long id, ComboProduct model) {
         requireByCombo(comboId, id);
+        productService.getById(model.productId());
         return repository.save(model);
     }
 

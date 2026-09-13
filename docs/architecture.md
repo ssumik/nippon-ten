@@ -73,13 +73,24 @@ public X requireByParent(Long parentId, Long id) {
 
 `User` segue a mesma lógica para `Client` e `UserAddress` (filhos de `User`/`Client`), com `UserAddressService` dependendo de `ClientService` da mesma forma.
 
+`Internal` também é filho de `User`, mas é gerenciado por `/internal` (o dashboard lista usuários internos, não usuários): `POST /internal` cria `User` + `Internal` de uma vez, `PUT /internal/{id}` nunca troca o `userId` e `DELETE /internal/{id}` remove o `Internal` junto com o `User`. Um `User` é criado já como cliente (`POST /users`) ou já como interno (`POST /internal`) — nunca os dois.
+
+### Referências e exclusão
+
+Todo id que chega no **corpo** do request e aponta para outro agregado (`ingredientId`, `productId`, `promotionTypeId`, `internalRoleId`) é validado no `Service` via `getById` do service dono antes de salvar — id inexistente é `404`, nunca erro de FK.
+
+Na exclusão de um pai, o `Service` do pai consulta os **repositórios** dos dependentes (não os services, que já injetam o service do pai e criariam ciclo):
+
+- **filhos do próprio agregado são removidos em cascata**: `Product` → `ProductSize`, `ProductIngredient`, `AdditionalIngredient`; `Combo` → `ComboProduct`; `User` → `UserAddress`, `Client`, `Internal`;
+- **referências vindas de outro agregado bloqueiam a exclusão** com `InvalidRequestException` (`400`): `Product` usado por combo ou promoção; `Ingredient` usado por produto ou adicional; `PromotionType` usado por promoção; `InternalRole` atribuída a usuário interno.
+
 ---
 
 ## Transação: no repositório por padrão, no service quando cruza agregados
 
 Toda escrita de um único agregado é transacional no nível do repositório Panache (`PanacheXRepository.save`/`remove`). Isso é suficiente para a maioria dos casos.
 
-Quando um `Service` precisa orquestrar **mais de um agregado em sequência** dentro da mesma operação — hoje isso só acontece em `UserService.register` (cria `User` + `Client`) e `UserService.delete` (remove `UserAddress`(s) + `Client` + `User`) — o método do `Service` também leva `@Transactional`, garantindo que a operação inteira seja atômica. Fora desses casos, não se adiciona `@Transactional` no nível de `Service`.
+Quando um `Service` precisa orquestrar **mais de um agregado em sequência** dentro da mesma operação — hoje isso acontece em `UserService.register` (cria `User` + `Client` + `UserAddress` opcional), `UserService.registerInternal` (cria `User` + `Internal`), `UserService.delete`/`deleteInternal` (remove `UserAddress`(s) + `Client` + `Internal` + `User`), `ProductService.delete` (remove os filhos do produto + `Product`) e `ComboService.delete` (remove `ComboProduct`(s) + `Combo`) — o método do `Service` também leva `@Transactional`, garantindo que a operação inteira seja atômica. Fora desses casos, não se adiciona `@Transactional` no nível de `Service`.
 
 ---
 

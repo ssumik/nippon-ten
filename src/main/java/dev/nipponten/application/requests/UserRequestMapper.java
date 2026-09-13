@@ -8,10 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 public class UserRequestMapper {
 
     public User toModel(Long id, UserRequest request) {
-        return new User(
-                id,
-                request.email(),
-                BcryptUtil.bcryptHash(request.password()),
-                request.createdAt());
+        return new User(id, request.email(), BcryptUtil.bcryptHash(request.password()), null, true);
     }
 }

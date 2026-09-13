@@ -12,7 +12,10 @@ public class InternalService {
 
     @Inject InternalRepository repository;
 
+    @Inject InternalRoleService internalRoleService;
+
     public Internal create(Internal model) {
+        internalRoleService.getById(model.internalRoleId());
         return repository.save(model);
     }
 
@@ -27,8 +30,16 @@ public class InternalService {
     }
 
     public Internal update(Long id, Internal model) {
-        getById(id);
-        return repository.save(model);
+        Internal current = getById(id);
+        internalRoleService.getById(model.internalRoleId());
+        return repository.save(
+                new Internal(
+                        id,
+                        current.userId(),
+                        model.internalRoleId(),
+                        model.name(),
+                        model.lastName(),
+                        model.cpf()));
     }
 
     public void delete(Long id) {

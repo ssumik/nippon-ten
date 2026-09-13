@@ -6,7 +6,7 @@ Um *Product* representa um item/serviço oferecido pelo cliente do sistema. O *P
 - Product Size: É a configuração que define qual o tamanho do produto.
 - Image URL: URL da imagem ilustrativa do produto.
 - Description: Descrição com os detalhes do produto.
-- Status: Status representa a disponibilidade do produto (disponível ou esgotado). O status pode ser alterado manualmente por um usuário interno.
+- Status: Status representa a disponibilidade do produto: `ACTIVE` (disponível) ou `INACTIVE` (esgotado). O status pode ser alterado manualmente por um usuário interno.
 
 O produto pode ter seu status alterado caso um ingrediente se esgote. Essa propagação **não é automática**: ao marcar um ingrediente (ou produto) como esgotado, o usuário interno recebe a lista de produtos/combos/promoções que dependem dele e escolhe, manualmente, quais também devem ser marcados como esgotados naquele momento. O sistema nunca decide isso sozinho.
 
@@ -18,11 +18,11 @@ Para a criação de um produto, o usuário interno precisa conter a [[user-manag
 
 ### Additional Ingredients
 
-*Additional Ingredients* representa um ingrediente **opcional** que o cliente pode adicionar ao pedido daquele produto (diferente de *Product Ingredient*, que é a composição obrigatória do produto). Cada *Additional Ingredient* define, para um produto e um ingrediente específicos, a quantidade máxima (`maximum_quantity`) que o cliente pode adicionar naquele item do pedido, e um status de disponibilidade. É essa configuração que permite ao sistema limitar a quantidade de adicionais no pedido (ver `requirements.md`).
+*Additional Ingredients* representa um ingrediente **opcional** que o cliente pode adicionar ao pedido daquele produto (diferente de *Product Ingredient*, que é a composição obrigatória do produto). Cada *Additional Ingredient* define, para um produto e um ingrediente específicos, a quantidade máxima (`maximum_quantity`) que o cliente pode adicionar naquele item do pedido, e um status de disponibilidade (`ACTIVE`/`INACTIVE`). É essa configuração que permite ao sistema limitar a quantidade de adicionais no pedido (ver `requirements.md`).
 
 ### Product Size
 
-O *Product Size* representa os tamanhos disponíveis para um produto. Os tamanhos (ex.: Pequeno, Médio, Grande) formam um catálogo **global**, reaproveitável entre produtos — um usuário interno cadastra o tamanho uma vez e ele fica disponível para ser associado a qualquer produto. A relação entre um produto e um tamanho é feita por uma tabela auxiliar própria, que também guarda o **preço daquela combinação específica de produto+tamanho** (o mesmo tamanho pode ter preços diferentes em produtos diferentes) e o status de disponibilidade daquela combinação. Para poder configurar tamanhos (o catálogo global) ou associá-los a um produto, o usuário interno precisa conter a [[user-management#Permissions|permissão]] `manage_products`.
+O *Product Size* representa os tamanhos disponíveis para um produto. Os tamanhos (ex.: Pequeno, Médio, Grande) formam um catálogo **global**, reaproveitável entre produtos — um usuário interno cadastra o tamanho uma vez e ele fica disponível para ser associado a qualquer produto. A relação entre um produto e um tamanho é feita por uma tabela auxiliar própria, que também guarda o **preço daquela combinação específica de produto+tamanho** (o mesmo tamanho pode ter preços diferentes em produtos diferentes) e o status de disponibilidade daquela combinação (`ACTIVE`/`INACTIVE`). Para poder configurar tamanhos (o catálogo global) ou associá-los a um produto, o usuário interno precisa conter a [[user-management#Permissions|permissão]] `manage_products`.
 
 > Modelo de dados: `size(id, name)` como catálogo global; `product_size(id, product_id, size_id, price, status)` como tabela auxiliar de associação. O diagrama em `docs/data-modeling/data_modeling.drawio` ainda mostra `product_size` sem a tabela `size` e sem o campo `name` — precisa ser atualizado manualmente para refletir esse desenho.
 
@@ -35,7 +35,7 @@ O *Product Size* representa os tamanhos disponíveis para um produto. Os tamanho
 - Description (opcional): Uma descrição detalhada do ingrediente.
 - Image URL: URL da imagem de ilustração do ingrediente.
 - Price: É o preço usado para calcular o acréscimo ao adicionar um ingrediente como adicional em um pedido
-- Status: Status representa a disponibilidade do produto (disponível ou esgotado). O status pode ser alterado manualmente por um usuário interno.
+- Status: Status representa a disponibilidade do ingrediente: `ACTIVE` (disponível) ou `OUT_OF_STOCK` (esgotado). O status pode ser alterado manualmente por um usuário interno.
 
 Quando um ingrediente é marcado como esgotado, o sistema lista os produtos que dependem dele e o usuário interno escolhe manualmente quais também devem ser marcados como esgotados — não há propagação automática (mesma regra descrita na seção [[#Product|Product]]).
 
@@ -50,7 +50,7 @@ Os combos são promoções que contém múltiplos produtos, que são vendidos po
 - Price: O valor cobrado pelo combo;
 - Image URL: URL da imagem de ilustração do combo;
 - Description: Informação detalhada do combo;
-- Status: Representa a disponibilidade de um combo (disponível ou esgotado). O status pode ser alterado manualmente por um usuário interno;
+- Status: Representa a disponibilidade de um combo: `ACTIVE` (disponível) ou `INACTIVE` (esgotado). O status pode ser alterado manualmente por um usuário interno;
 - Start Date: Define o momento em que o combo fica disponível no catálogo;
 - End Date: Define o momento em que o combo fica indisponível.
 
@@ -70,10 +70,10 @@ Assim como em Product/Ingredient, quando um produto que compõe o combo fica esg
 As *Promotions* sobrescrevem o custo de um produto, por um tempo limitado. Os dados necessários para criar uma promoção são:
 
 - Title: Titulo de exibição para a promoção;
-- Price: O preço da promoção. Pode ser definida manualmente, ou calculada ao selecionar um tipo de promoção (promotion type);
+- Price: Não é informado na criação. Como o preço do produto varia por tamanho, o preço promocional é calculado **para cada tamanho** do produto a partir do *Promotion Type* (ver abaixo) e devolvido como lista (`productSizeId`, preço original, preço promocional);
 - Image URL: URL da imagem que ilustra a promoção;
 - Description: Uma descrição que detalha a promoção;
-- Status: A disponibilidade da promoção;
+- Status: A disponibilidade da promoção: `ACTIVE` ou `INACTIVE`;
 - Promotion Type: Define o método para o calculo ou processamento do custo da promoção;
 - Product: O produto ao qual essa promoção se aplica;
 - Start Date: Define o momento em que a promoção inicia;
@@ -90,5 +90,7 @@ Para uma promoção ser criada, editada, deletada ou ter o status alterado, o us
 
 - Name: Nome de identificação;
 - Description: Detalhes sobre o tipo de promoção;
-- Type: Tipos pré-definidos de promoção;
-- Value: Valor a ser considerado no cálculo do valor da promoção, caso tenha.
+- Type: Tipo pré-definido de promoção:
+  - `PERCENTAGE_DISCOUNT` — preço promocional = preço do tamanho × (100 − value) / 100. `value` deve estar entre 0 (exclusivo) e 100;
+  - `FIXED_DISCOUNT` — preço promocional = preço do tamanho − value, nunca abaixo de zero;
+- Value: Valor usado no cálculo (obrigatório e positivo). O preço resultante é arredondado para 2 casas.
