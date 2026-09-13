@@ -2,7 +2,7 @@ package dev.nipponten.application.services;
 
 import dev.nipponten.application.exceptions.InternalNotFoundException;
 import dev.nipponten.domain.models.Internal;
-import dev.nipponten.infrastructure.repositories.InternalRepository;
+import dev.nipponten.domain.repositories.InternalRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;

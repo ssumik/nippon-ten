@@ -1,3 +1,5 @@
 package dev.nipponten.application.requests;
 
-public record ComboProductRequest(Long comboId, Long productId) {}
+import jakarta.validation.constraints.NotNull;
+
+public record ComboProductRequest(@NotNull Long productId) {}

@@ -1,6 +1,7 @@
 package dev.nipponten.infrastructure.repositories;
 
 import dev.nipponten.domain.models.Product;
+import dev.nipponten.domain.repositories.ProductRepository;
 import dev.nipponten.infrastructure.entities.ProductEntity;
 import dev.nipponten.infrastructure.mappers.ProductMapper;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;

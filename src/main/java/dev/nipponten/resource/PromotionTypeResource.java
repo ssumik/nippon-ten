@@ -1,10 +1,13 @@
 package dev.nipponten.resource;
 
 import dev.nipponten.application.requests.PromotionTypeRequest;
+import dev.nipponten.application.requests.PromotionTypeRequestMapper;
 import dev.nipponten.application.responses.PromotionTypeResponse;
+import dev.nipponten.application.responses.PromotionTypeResponseMapper;
 import dev.nipponten.application.services.PromotionTypeService;
 import dev.nipponten.domain.models.PromotionType;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -24,43 +27,33 @@ public class PromotionTypeResource {
 
     @Inject PromotionTypeService service;
 
+    @Inject PromotionTypeResponseMapper mapper;
+
+    @Inject PromotionTypeRequestMapper requestMapper;
+
     @POST
-    public Response create(PromotionTypeRequest request) {
-        PromotionType saved =
-                service.create(
-                        new PromotionType(
-                                null,
-                                request.name(),
-                                request.description(),
-                                request.type(),
-                                request.value()));
-        return Response.status(Response.Status.CREATED).entity(toResponse(saved)).build();
+    public Response create(@Valid PromotionTypeRequest request) {
+        PromotionType saved = service.create(requestMapper.toModel(null, request));
+        return Response.status(Response.Status.CREATED).entity(mapper.toResponse(saved)).build();
     }
 
     @GET
     @Path("/{id}")
     public PromotionTypeResponse getById(@PathParam("id") Long id) {
-        return toResponse(service.getById(id));
+        return mapper.toResponse(service.getById(id));
     }
 
     @GET
     public List<PromotionTypeResponse> getAll() {
-        return service.getAll().stream().map(this::toResponse).toList();
+        return service.getAll().stream().map(mapper::toResponse).toList();
     }
 
     @PUT
     @Path("/{id}")
-    public PromotionTypeResponse update(@PathParam("id") Long id, PromotionTypeRequest request) {
-        PromotionType updated =
-                service.update(
-                        id,
-                        new PromotionType(
-                                id,
-                                request.name(),
-                                request.description(),
-                                request.type(),
-                                request.value()));
-        return toResponse(updated);
+    public PromotionTypeResponse update(
+            @PathParam("id") Long id, @Valid PromotionTypeRequest request) {
+        PromotionType updated = service.update(id, requestMapper.toModel(id, request));
+        return mapper.toResponse(updated);
     }
 
     @DELETE
@@ -68,14 +61,5 @@ public class PromotionTypeResource {
     public Response delete(@PathParam("id") Long id) {
         service.delete(id);
         return Response.noContent().build();
-    }
-
-    private PromotionTypeResponse toResponse(PromotionType promotionType) {
-        return new PromotionTypeResponse(
-                promotionType.id(),
-                promotionType.name(),
-                promotionType.description(),
-                promotionType.type(),
-                promotionType.value());
     }
 }

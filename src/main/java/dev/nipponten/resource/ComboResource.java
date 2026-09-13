@@ -1,10 +1,19 @@
 package dev.nipponten.resource;
 
+import dev.nipponten.application.requests.ComboProductRequest;
+import dev.nipponten.application.requests.ComboProductRequestMapper;
 import dev.nipponten.application.requests.ComboRequest;
+import dev.nipponten.application.requests.ComboRequestMapper;
+import dev.nipponten.application.responses.ComboProductResponse;
+import dev.nipponten.application.responses.ComboProductResponseMapper;
 import dev.nipponten.application.responses.ComboResponse;
+import dev.nipponten.application.responses.ComboResponseMapper;
+import dev.nipponten.application.services.ComboProductService;
 import dev.nipponten.application.services.ComboService;
 import dev.nipponten.domain.models.Combo;
+import dev.nipponten.domain.models.ComboProduct;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -24,45 +33,38 @@ public class ComboResource {
 
     @Inject ComboService service;
 
+    @Inject ComboProductService comboProductService;
+
+    @Inject ComboResponseMapper mapper;
+
+    @Inject ComboRequestMapper requestMapper;
+
+    @Inject ComboProductResponseMapper comboProductMapper;
+
+    @Inject ComboProductRequestMapper comboProductRequestMapper;
+
     @POST
-    public Response create(ComboRequest request) {
-        Combo saved =
-                service.create(
-                        new Combo(
-                                null,
-                                request.name(),
-                                request.price(),
-                                request.imageUrl(),
-                                request.description(),
-                                request.status()));
-        return Response.status(Response.Status.CREATED).entity(toResponse(saved)).build();
+    public Response create(@Valid ComboRequest request) {
+        Combo saved = service.create(requestMapper.toModel(null, request));
+        return Response.status(Response.Status.CREATED).entity(mapper.toResponse(saved)).build();
     }
 
     @GET
     @Path("/{id}")
     public ComboResponse getById(@PathParam("id") Long id) {
-        return toResponse(service.getById(id));
+        return mapper.toResponse(service.getById(id));
     }
 
     @GET
     public List<ComboResponse> getAll() {
-        return service.getAll().stream().map(this::toResponse).toList();
+        return service.getAll().stream().map(mapper::toResponse).toList();
     }
 
     @PUT
     @Path("/{id}")
-    public ComboResponse update(@PathParam("id") Long id, ComboRequest request) {
-        Combo updated =
-                service.update(
-                        id,
-                        new Combo(
-                                id,
-                                request.name(),
-                                request.price(),
-                                request.imageUrl(),
-                                request.description(),
-                                request.status()));
-        return toResponse(updated);
+    public ComboResponse update(@PathParam("id") Long id, @Valid ComboRequest request) {
+        Combo updated = service.update(id, requestMapper.toModel(id, request));
+        return mapper.toResponse(updated);
     }
 
     @DELETE
@@ -72,13 +74,45 @@ public class ComboResource {
         return Response.noContent().build();
     }
 
-    private ComboResponse toResponse(Combo combo) {
-        return new ComboResponse(
-                combo.id(),
-                combo.name(),
-                combo.price(),
-                combo.imageUrl(),
-                combo.description(),
-                combo.status());
+    @GET
+    @Path("/{comboId}/products")
+    public List<ComboProductResponse> getProducts(@PathParam("comboId") Long comboId) {
+        return comboProductService.getByCombo(comboId).stream()
+                .map(comboProductMapper::toResponse)
+                .toList();
+    }
+
+    @POST
+    @Path("/{comboId}/products")
+    public Response addProduct(
+            @PathParam("comboId") Long comboId, @Valid ComboProductRequest request) {
+        ComboProduct saved =
+                comboProductService.create(
+                        comboProductRequestMapper.toModel(null, comboId, request));
+        return Response.status(Response.Status.CREATED)
+                .entity(comboProductMapper.toResponse(saved))
+                .build();
+    }
+
+    @PUT
+    @Path("/{comboId}/products/{comboProductId}")
+    public ComboProductResponse updateProduct(
+            @PathParam("comboId") Long comboId,
+            @PathParam("comboProductId") Long comboProductId,
+            @Valid ComboProductRequest request) {
+        ComboProduct updated =
+                comboProductService.update(
+                        comboId,
+                        comboProductId,
+                        comboProductRequestMapper.toModel(comboProductId, comboId, request));
+        return comboProductMapper.toResponse(updated);
+    }
+
+    @DELETE
+    @Path("/{comboId}/products/{comboProductId}")
+    public Response removeProduct(
+            @PathParam("comboId") Long comboId, @PathParam("comboProductId") Long comboProductId) {
+        comboProductService.delete(comboId, comboProductId);
+        return Response.noContent().build();
     }
 }

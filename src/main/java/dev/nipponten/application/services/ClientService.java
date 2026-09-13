@@ -2,10 +2,11 @@ package dev.nipponten.application.services;
 
 import dev.nipponten.application.exceptions.ClientNotFoundException;
 import dev.nipponten.domain.models.Client;
-import dev.nipponten.infrastructure.repositories.ClientRepository;
+import dev.nipponten.domain.repositories.ClientRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 public class ClientService {
@@ -36,7 +37,11 @@ public class ClientService {
         repository.remove(model);
     }
 
-    public List<Client> getByUser(Long userId) {
-        return repository.getByUser(userId);
+    public Client getByUser(Long userId) {
+        return findByUser(userId).orElseThrow(() -> ClientNotFoundException.forUser(userId));
+    }
+
+    public Optional<Client> findByUser(Long userId) {
+        return repository.getByUser(userId).stream().findFirst();
     }
 }

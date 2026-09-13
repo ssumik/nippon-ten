@@ -1,6 +1,7 @@
 package dev.nipponten.infrastructure.repositories;
 
 import dev.nipponten.domain.models.PromotionType;
+import dev.nipponten.domain.repositories.PromotionTypeRepository;
 import dev.nipponten.infrastructure.entities.PromotionTypeEntity;
 import dev.nipponten.infrastructure.mappers.PromotionTypeMapper;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;

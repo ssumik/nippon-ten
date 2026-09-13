@@ -2,7 +2,7 @@ package dev.nipponten.application.services;
 
 import dev.nipponten.application.exceptions.PromotionTypeNotFoundException;
 import dev.nipponten.domain.models.PromotionType;
-import dev.nipponten.infrastructure.repositories.PromotionTypeRepository;
+import dev.nipponten.domain.repositories.PromotionTypeRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;

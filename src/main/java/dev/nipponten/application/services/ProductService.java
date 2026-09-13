@@ -2,7 +2,7 @@ package dev.nipponten.application.services;
 
 import dev.nipponten.application.exceptions.ProductNotFoundException;
 import dev.nipponten.domain.models.Product;
-import dev.nipponten.infrastructure.repositories.ProductRepository;
+import dev.nipponten.domain.repositories.ProductRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;

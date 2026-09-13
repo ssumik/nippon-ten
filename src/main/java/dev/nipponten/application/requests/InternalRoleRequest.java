@@ -1,3 +1,5 @@
 package dev.nipponten.application.requests;
 
-public record InternalRoleRequest(String name) {}
+import jakarta.validation.constraints.NotBlank;
+
+public record InternalRoleRequest(@NotBlank String name) {}

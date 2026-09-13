@@ -1,10 +1,13 @@
 package dev.nipponten.resource;
 
 import dev.nipponten.application.requests.PromotionRequest;
+import dev.nipponten.application.requests.PromotionRequestMapper;
 import dev.nipponten.application.responses.PromotionResponse;
+import dev.nipponten.application.responses.PromotionResponseMapper;
 import dev.nipponten.application.services.PromotionService;
 import dev.nipponten.domain.models.Promotion;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -24,55 +27,32 @@ public class PromotionResource {
 
     @Inject PromotionService service;
 
+    @Inject PromotionResponseMapper mapper;
+
+    @Inject PromotionRequestMapper requestMapper;
+
     @POST
-    public Response create(PromotionRequest request) {
-        Promotion saved =
-                service.create(
-                        new Promotion(
-                                null,
-                                request.title(),
-                                request.price(),
-                                request.imageUrl(),
-                                request.description(),
-                                request.status(),
-                                request.promotionTypeId(),
-                                request.productId(),
-                                request.startDate(),
-                                request.endDate(),
-                                request.enablePromotionPoints()));
-        return Response.status(Response.Status.CREATED).entity(toResponse(saved)).build();
+    public Response create(@Valid PromotionRequest request) {
+        Promotion saved = service.create(requestMapper.toModel(null, request));
+        return Response.status(Response.Status.CREATED).entity(mapper.toResponse(saved)).build();
     }
 
     @GET
     @Path("/{id}")
     public PromotionResponse getById(@PathParam("id") Long id) {
-        return toResponse(service.getById(id));
+        return mapper.toResponse(service.getById(id));
     }
 
     @GET
     public List<PromotionResponse> getAll() {
-        return service.getAll().stream().map(this::toResponse).toList();
+        return service.getAll().stream().map(mapper::toResponse).toList();
     }
 
     @PUT
     @Path("/{id}")
-    public PromotionResponse update(@PathParam("id") Long id, PromotionRequest request) {
-        Promotion updated =
-                service.update(
-                        id,
-                        new Promotion(
-                                id,
-                                request.title(),
-                                request.price(),
-                                request.imageUrl(),
-                                request.description(),
-                                request.status(),
-                                request.promotionTypeId(),
-                                request.productId(),
-                                request.startDate(),
-                                request.endDate(),
-                                request.enablePromotionPoints()));
-        return toResponse(updated);
+    public PromotionResponse update(@PathParam("id") Long id, @Valid PromotionRequest request) {
+        Promotion updated = service.update(id, requestMapper.toModel(id, request));
+        return mapper.toResponse(updated);
     }
 
     @DELETE
@@ -80,20 +60,5 @@ public class PromotionResource {
     public Response delete(@PathParam("id") Long id) {
         service.delete(id);
         return Response.noContent().build();
-    }
-
-    private PromotionResponse toResponse(Promotion promotion) {
-        return new PromotionResponse(
-                promotion.id(),
-                promotion.title(),
-                promotion.price(),
-                promotion.imageUrl(),
-                promotion.description(),
-                promotion.status(),
-                promotion.promotionTypeId(),
-                promotion.productId(),
-                promotion.startDate(),
-                promotion.endDate(),
-                promotion.enablePromotionPoints());
     }
 }

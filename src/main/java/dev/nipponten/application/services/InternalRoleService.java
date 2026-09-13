@@ -2,7 +2,7 @@ package dev.nipponten.application.services;
 
 import dev.nipponten.application.exceptions.InternalRoleNotFoundException;
 import dev.nipponten.domain.models.InternalRole;
-import dev.nipponten.infrastructure.repositories.InternalRoleRepository;
+import dev.nipponten.domain.repositories.InternalRoleRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;

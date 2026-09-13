@@ -1,3 +1,5 @@
 package dev.nipponten.application.requests;
 
-public record ProductIngredientRequest(Long ingredientId) {}
+import jakarta.validation.constraints.NotNull;
+
+public record ProductIngredientRequest(@NotNull Long ingredientId) {}

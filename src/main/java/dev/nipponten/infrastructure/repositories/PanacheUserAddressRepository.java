@@ -1,6 +1,7 @@
 package dev.nipponten.infrastructure.repositories;
 
 import dev.nipponten.domain.models.UserAddress;
+import dev.nipponten.domain.repositories.UserAddressRepository;
 import dev.nipponten.infrastructure.entities.UserAddressEntity;
 import dev.nipponten.infrastructure.mappers.UserAddressMapper;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;

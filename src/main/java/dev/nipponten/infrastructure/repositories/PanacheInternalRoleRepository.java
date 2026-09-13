@@ -1,6 +1,7 @@
 package dev.nipponten.infrastructure.repositories;
 
 import dev.nipponten.domain.models.InternalRole;
+import dev.nipponten.domain.repositories.InternalRoleRepository;
 import dev.nipponten.infrastructure.entities.InternalRoleEntity;
 import dev.nipponten.infrastructure.mappers.InternalRoleMapper;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;

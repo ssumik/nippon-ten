@@ -1,6 +1,7 @@
 package dev.nipponten.infrastructure.repositories;
 
 import dev.nipponten.domain.models.Client;
+import dev.nipponten.domain.repositories.ClientRepository;
 import dev.nipponten.infrastructure.entities.ClientEntity;
 import dev.nipponten.infrastructure.mappers.ClientMapper;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
